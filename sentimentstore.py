@@ -2,11 +2,12 @@
 class SentimentStore:
     def __init__(self):
         self.store = {}
+        self.timesseen = {}
         self.pos = 0
         self.neg = 0
         self.totalwordcount = 0
         self.wordcount = 0
-        self.words = []
+        self.sentiment_dict = {}
         
     def getNumberOfWords(self):
         return self.wordcount
@@ -21,41 +22,40 @@ class SentimentStore:
         return self.totalwordcount
 
     def addWordScore(self, word, score):
-        self.words.append(word)
-        
-        self.totalwordcount+=1
+        self.totalwordcount += 1
         if word not in self.store.keys(): 
-            self.store[word] = score
+            self.store[word] = score 
+            self.timesseen[word]=1
             self.wordcount += 1
+            if score == 1 :
+                self.pos += 1
+            else: 
+                self.neg += 1
         else: 
-            self.store[word]+=score
-
-        if score == 1: 
-            self.pos += 1
-        else: 
-            self.neg += 1
-        
-        return
+            self.store[word]+= score
+            self.timesseen[word]+=1
                 
+        return
+        
     def addStringScore(self, string, score):
         words = string.split(" ")
-        wrdnot = False
-        for word in words:
-            if len(word) > 3: # ignore short words
-                self.addWordScore(word, score)
-
+        N = 0
+        for i in range(N,len(words)):
+            strang = ""
+            for wrd in words[i-N:i+1+N]:
+                strang += " " + wrd
+            
+            if len(words[i]) > 3: # ignore short words
+                self.addWordScore(strang[1:], score)
+        
     def getWordSentiment(self, word):
         if word in self.store.keys():
-            return self.store[word] 
+            return self.store[word]
         return 0
     
     def getWordCount(self, word):
         if word in self.store.keys(): 
-            
-            if self.store[word] > 0:
-                return self.store[word]
-            else:
-                return abs(self.store[word])
+            return self.timesseen[word]
         return 0
 
     def getNormalizedWordSentiment(self, word):
@@ -71,9 +71,15 @@ class SentimentStore:
         score = 0
         count = 0
         words = s.split(" ")
-        for word in words:
-            if len(word) > 3: # ignore short words
-                count += 1
-                word = word.lower()
-                score += self.getNormalizedWordSentiment(word)
-        return score / count
+        N = 0
+        #for word in words:
+        for i in range(N, len(words)):
+            strang = ""
+            for wrd in words[i-N:i+1+N]:
+                strang += " " + wrd
+                if len(words[i]) > 3: # ignore short words
+                    count += 1
+                    strang = strang.lower()
+                    score += self.getNormalizedWordSentiment(strang[1:])
+                
+        return score / count 
