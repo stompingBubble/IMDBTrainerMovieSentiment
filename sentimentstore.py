@@ -29,7 +29,7 @@ class SentimentStore:
             self.wordcount += 1
             if score == 1 :
                 self.pos += 1
-            else: 
+            elif score == -1:
                 self.neg += 1
         else: 
             self.store[word]+= score
@@ -38,14 +38,17 @@ class SentimentStore:
         return
         
     def addStringScore(self, string, score):
+        N = 1
+        string = string.replace("<br", "").replace("/>", "").replace(")", "").replace("(", "").replace("}","")
+       
+    
         words = string.split(" ")
-        N = 0
+        
         for i in range(N,len(words)):
             strang = ""
-            for wrd in words[i-N:i+1+N]:
+            for wrd in words[i-N:i+1]:
                 strang += " " + wrd
-            
-            if len(words[i]) > 3: # ignore short words
+            if len(strang) > 3:
                 self.addWordScore(strang[1:], score)
         
     def getWordSentiment(self, word):
@@ -62,24 +65,29 @@ class SentimentStore:
         # This function is important - by normalizing the data we compensate
         # for the fact that some words occurs far more often than others.
         if self.getWordCount(word) != 0:
+            
             return self.getWordSentiment(word) / self.getWordCount(word)
         else:
             return 0
 
 
     def getStringSentiment(self, s):
+        N = 1
+        
+        s = s.replace("<br", "").replace("/>", "").replace(")", "").replace("(", "").replace("}","")
         score = 0
         count = 0
         words = s.split(" ")
-        N = 0
-        #for word in words:
+        
         for i in range(N, len(words)):
             strang = ""
-            for wrd in words[i-N:i+1+N]:
+            for wrd in words[i-N:i+1]:
                 strang += " " + wrd
-                if len(words[i]) > 3: # ignore short words
-                    count += 1
-                    strang = strang.lower()
-                    score += self.getNormalizedWordSentiment(strang[1:])
-                
+            
+            if len(strang) > 3:
+                count += 1
+                strang = strang.lower()
+                score += self.getNormalizedWordSentiment(strang[1:])
+            
+        
         return score / count 

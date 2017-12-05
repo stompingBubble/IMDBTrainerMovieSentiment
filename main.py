@@ -29,4 +29,3 @@ movies_test.test( sentiment )
 t1 = time.time()
 print("Testing took {:.3f}s".format( t1-t0 ) )
 
-
